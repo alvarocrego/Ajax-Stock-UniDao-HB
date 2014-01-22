@@ -12,8 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import net.rafaelaznar.dao.ProductoDao;
 
-import net.rafaelaznar.helper.Conexion;
-
 /**
  *
  * @author rafa
@@ -24,10 +22,11 @@ public class ProductoGetcolumns implements GenericOperation {
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         ArrayList<String> alColumns = null;
         try {
-            ProductoDao oProductoDAO = new ProductoDao(Conexion.getConection());
-            alColumns = oProductoDAO.getColumnsNames();
+            ProductoDao oProductoDAO = new ProductoDao();
+            alColumns = (ArrayList<String>) oProductoDAO.getColumnsNames();
             String data = new Gson().toJson(alColumns);
-            data = "{\"data\":" + data + "}";
+            //String data = "{\"data\":" + "[\"id\",\"nombre\",\"ape1\",\"ape2\",\"email\"]" + "}";
+             data = "{\"data\":" + data + "}";
             return data;
         } catch (Exception e) {
             throw new ServletException("ProductoGetcolumnsJson: View Error: " + e.getMessage());

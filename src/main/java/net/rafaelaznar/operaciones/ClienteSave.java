@@ -10,10 +10,11 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import net.rafaelaznar.bean.Cliente;
 
 import net.rafaelaznar.helper.Conexion;
 import net.rafaelaznar.helper.EncodingUtil;
-import net.rafaelaznar.bean.ClienteBean;
+
 import net.rafaelaznar.dao.ClienteDao;
 
 /**
@@ -26,21 +27,21 @@ public class ClienteSave implements GenericOperation {
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         try {
-            ClienteDao oClienteDAO = new ClienteDao(Conexion.getConection());
-            ClienteBean oCliente = new ClienteBean();
+            ClienteDao oClienteDAO = new ClienteDao();
+            Cliente oCliente = new Cliente();
             Gson gson = new Gson();
             String jason = request.getParameter("json");
             jason = EncodingUtil.decodeURIComponent(jason);
             oCliente = gson.fromJson(jason, oCliente.getClass());
             Map<String, String> data = new HashMap<>();
-            if (oCliente != null) {
-                oCliente = oClienteDAO.set(oCliente);
-                data.put("status", "200");
-                data.put("message", Integer.toString(oCliente.getId()));
+            if (oCliente.getId() == 0 || oCliente.getId()==null) {
+                oClienteDAO.create(oCliente);
             } else {
-                data.put("status", "error");
-                data.put("message", "error");
+                oClienteDAO.set(oCliente);
             }
+            data.put("status", "200");
+            data.put("message", Integer.toString(oCliente.getId()));
+
             String resultado = gson.toJson(data);
             return resultado;
         } catch (Exception e) {

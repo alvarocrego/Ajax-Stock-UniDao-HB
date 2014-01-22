@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import net.rafaelaznar.dao.TipoproductoDao;
+
 import net.rafaelaznar.helper.Conexion;
 import net.rafaelaznar.helper.FilterBean;
 
@@ -64,8 +65,8 @@ public class TipoproductoGetpages implements GenericOperation {
             } else {
                 hmOrder = null;
             }
-            TipoproductoDao oTipoproductoDAO = new TipoproductoDao(Conexion.getConection());
-            int pages = oTipoproductoDAO.getPages(rpp, alFilter, hmOrder);
+            TipoproductoDao oTipoproductoDAO = new TipoproductoDao();
+            int pages = oTipoproductoDAO.getPages(rpp,alFilter);
             data = "{\"data\":\"" + Integer.toString(pages) + "\"}";
             return data;
         } catch (Exception e) {

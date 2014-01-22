@@ -5,18 +5,12 @@
 package net.rafaelaznar.dao;
 
 
-import net.rafaelaznar.bean.ProductoBean;
-import net.rafaelaznar.helper.Conexion;
+import net.rafaelaznar.bean.Producto;
 
 /**
  *
  * @author rafa
  */
 
-public class ProductoDao extends GenericDaoImplementation<ProductoBean> {
-  
-    public ProductoDao(Conexion.Tipo_conexion tipoConexion) throws Exception {
-        super(tipoConexion,"producto");
-    }
-    
+public class ProductoDao extends GenericDaoImplementation<Producto> {
 }

@@ -8,7 +8,7 @@
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.Iterator"%>
 <%
-    ProductoDao oProductoDao = new ProductoDao(Conexion.getConection());
+    ProductoDao oProductoDao = new ProductoDao();
     ArrayList<String> alColumnsNames = (ArrayList<String>) oProductoDao.getColumnsNames();
     Iterator<String> oIterador = alColumnsNames.listIterator();
     String strNombreMantenimiento = "producto";

@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import net.rafaelaznar.dao.TipoproductoDao;
+
 import net.rafaelaznar.helper.Conexion;
 import net.rafaelaznar.helper.FilterBean;
 
@@ -47,10 +48,11 @@ public class TipoproductoGetregisters implements GenericOperation {
                         alFilter.add(oFilterBean);
                     }
                 }
-            }
-            TipoproductoDao oTipoproductoDAO = new TipoproductoDao(Conexion.getConection());
+            }       
+            TipoproductoDao oTipoproductoDAO = new TipoproductoDao();
             int pages = oTipoproductoDAO.getCount(alFilter);
             data = "{\"data\":\"" + Integer.toString(pages) + "\"}";
+            //data = "{\"data\":\"100\"}";
             return data;
         } catch (Exception e) {
             throw new ServletException("TipoproductoGetregistersJson: View Error: " + e.getMessage());

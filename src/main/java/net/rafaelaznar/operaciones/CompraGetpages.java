@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import net.rafaelaznar.dao.CompraDao;
+
 import net.rafaelaznar.helper.Conexion;
 import net.rafaelaznar.helper.FilterBean;
 
@@ -54,7 +55,6 @@ public class CompraGetpages implements GenericOperation {
                     }
                 }
             }
-            if (alFilter.isEmpty())alFilter=null;
             HashMap<String, String> hmOrder = new HashMap<>();
             if (request.getParameter("order") != null) {
                 if (request.getParameter("ordervalue") != null) {
@@ -65,8 +65,8 @@ public class CompraGetpages implements GenericOperation {
             } else {
                 hmOrder = null;
             }
-            CompraDao oCompraDAO = new CompraDao(Conexion.getConection());
-            int pages = oCompraDAO.getPages(rpp, alFilter, hmOrder);
+            CompraDao oCompraDAO = new CompraDao();
+            int pages = oCompraDAO.getPages(rpp,alFilter);
             data = "{\"data\":\"" + Integer.toString(pages) + "\"}";
             return data;
         } catch (Exception e) {

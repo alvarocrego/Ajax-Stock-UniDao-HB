@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+                  
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>        
+        <property name="connection.datasource">java:/comp/env/jdbc/facturacion</property>
+        <property name="hibernate.show_sql">true</property>
+
+        
+        
+        <!--
+        ojo, con esta conexión, se satura y la aplicación falla!!
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/facturacion</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password">bitnami</property>
+        -->
+                
+        <mapping resource="net/rafaelaznar/bean/Factura.hbm.xml"/>
+        <mapping resource="net/rafaelaznar/bean/Usuario.hbm.xml"/>
+        <mapping resource="net/rafaelaznar/bean/Compra.hbm.xml"/>
+        <mapping resource="net/rafaelaznar/bean/Tipoproducto.hbm.xml"/>
+        <mapping resource="net/rafaelaznar/bean/Producto.hbm.xml"/>
+        <mapping resource="net/rafaelaznar/bean/Cliente.hbm.xml"/>
+        
+        <!--
+        <property name="minPoolSize" value="5"/>
+        <property name="maxPoolSize" value="100"/>
+        <property name="initialPoolSize" value="5"/>
+        <property name="maxStatements" value="10"/>
+        <property name="connection.pool_size">1</property>
+        <property name="validateConnectionOnBorrow" value="true"/>
+        <property name="hibernate.connection.autocommit">false</property>
+        <property name="hibernate.format_sql">true</property>
+        <property name="current_session_context_class">thread</property>
+        -->
+        
+    </session-factory>
+</hibernate-configuration>

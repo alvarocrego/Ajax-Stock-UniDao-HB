@@ -12,12 +12,9 @@ package net.rafaelaznar.operaciones;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import net.rafaelaznar.bean.ClienteBean;
-
 import com.google.gson.Gson;
+import net.rafaelaznar.bean.Cliente;
 import net.rafaelaznar.dao.ClienteDao;
-import net.rafaelaznar.helper.Conexion;
 
 public class ClienteGet implements GenericOperation {
 
@@ -28,10 +25,8 @@ public class ClienteGet implements GenericOperation {
             if (request.getParameter("id") == null) {
                 data = "{\"error\":\"id is mandatory\"}";
             } else {
-                ClienteDao oClienteDAO = new ClienteDao(Conexion.getConection());
-                ClienteBean oCliente = new ClienteBean();
-                oCliente.setId(Integer.parseInt(request.getParameter("id")));
-                oClienteDAO.get(oCliente);
+                ClienteDao oClienteDAO = new ClienteDao();                             
+                Cliente oCliente=oClienteDAO.get(Integer.parseInt(request.getParameter("id")));
                 data = new Gson().toJson(oCliente);
             }
             return data;

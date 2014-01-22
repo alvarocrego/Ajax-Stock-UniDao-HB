@@ -10,10 +10,8 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import net.rafaelaznar.bean.Cliente;
 
-import net.rafaelaznar.helper.Conexion;
-import net.rafaelaznar.helper.EncodingUtil;
-import net.rafaelaznar.bean.ClienteBean;
 import net.rafaelaznar.dao.ClienteDao;
 
 /**
@@ -21,25 +19,21 @@ import net.rafaelaznar.dao.ClienteDao;
  * @author rafa
  */
 public class ClienteRemove implements GenericOperation {
+
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         try {
-            ClienteDao oClienteDAO = new ClienteDao(Conexion.getConection());
-            ClienteBean oCliente = new ClienteBean();                                           
-            oCliente.setId(Integer.parseInt(request.getParameter("id")));            
+            ClienteDao oClienteDAO = new ClienteDao();
+            Cliente oCliente = new Cliente();
+            oCliente.setId(Integer.parseInt(request.getParameter("id")));
             Map<String, String> data = new HashMap<>();
-            if (oCliente != null) {
-                oClienteDAO.remove(oCliente);
-                data.put("status", "200");
-                data.put("message", "se ha eliminado el registro con id=" + oCliente.getId());
-            } else {
-                data.put("status", "error");
-                data.put("message", "error");
-            }
+            oClienteDAO.remove(oCliente);
+            data.put("status", "200");
+            data.put("message", "se ha eliminado el registro con id=" + oCliente.getId());
             Gson gson = new Gson();
             String resultado = gson.toJson(data);
-            return resultado;        
+            return resultado;
         } catch (Exception e) {
             throw new ServletException("ClienteRemoveJson: View Error: " + e.getMessage());
         }

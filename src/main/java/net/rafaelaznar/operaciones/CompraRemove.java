@@ -10,35 +10,30 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import net.rafaelaznar.bean.Compra;
+
 import net.rafaelaznar.dao.CompraDao;
-import net.rafaelaznar.helper.Conexion;
-import net.rafaelaznar.helper.EncodingUtil;
-import net.rafaelaznar.bean.CompraBean;
 
 /**
  *
  * @author rafa
  */
 public class CompraRemove implements GenericOperation {
+
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         try {
-            CompraDao oCompraDAO = new CompraDao(Conexion.getConection());
-            CompraBean oCompra = new CompraBean();                                           
-            oCompra.setId(Integer.parseInt(request.getParameter("id")));            
+            CompraDao oCompraDAO = new CompraDao();
+            Compra oCompra = new Compra();
+            oCompra.setId(Integer.parseInt(request.getParameter("id")));
             Map<String, String> data = new HashMap<>();
-            if (oCompra != null) {
-                oCompraDAO.remove(oCompra);
-                data.put("status", "200");
-                data.put("message", "se ha eliminado el registro con id=" + oCompra.getId());
-            } else {
-                data.put("status", "error");
-                data.put("message", "error");
-            }
+            oCompraDAO.remove(oCompra);
+            data.put("status", "200");
+            data.put("message", "se ha eliminado el registro con id=" + oCompra.getId());
             Gson gson = new Gson();
             String resultado = gson.toJson(data);
-            return resultado;        
+            return resultado;
         } catch (Exception e) {
             throw new ServletException("CompraRemoveJson: View Error: " + e.getMessage());
         }

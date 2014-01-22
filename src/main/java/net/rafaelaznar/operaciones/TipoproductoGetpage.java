@@ -11,8 +11,8 @@ import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import net.rafaelaznar.helper.Conexion;
-import net.rafaelaznar.bean.TipoproductoBean;
+
+import net.rafaelaznar.bean.Tipoproducto;
 import net.rafaelaznar.dao.TipoproductoDao;
 import net.rafaelaznar.helper.FilterBean;
 
@@ -48,9 +48,9 @@ public class TipoproductoGetpage implements GenericOperation {
                         oFilterBean.setFilterValue(request.getParameter("filtervalue"));
                         oFilterBean.setFilterOrigin("user");
                         alFilter.add(oFilterBean);
-                    } 
-                } 
-            } 
+                    }
+                }
+            }
             if (request.getParameter("systemfilter") != null) {
                 if (request.getParameter("systemfilteroperator") != null) {
                     if (request.getParameter("systemfiltervalue") != null) {
@@ -62,16 +62,20 @@ public class TipoproductoGetpage implements GenericOperation {
                         alFilter.add(oFilterBean);
                     }
                 }
-            }            
+            }
             HashMap<String, String> hmOrder = new HashMap<>();
 
             if (request.getParameter("order") != null) {
-                if (request.getParameter("ordervalue") != null) {           
-                    hmOrder.put(request.getParameter("order"), request.getParameter("ordervalue"));                  
-                } else             hmOrder=null;
-            } else             hmOrder=null;
-            TipoproductoDao oTipoproductoDAO = new TipoproductoDao(Conexion.getConection());
-            List<TipoproductoBean> oTipoproductos = oTipoproductoDAO.getPage( rpp, page, alFilter,hmOrder );
+                if (request.getParameter("ordervalue") != null) {
+                    hmOrder.put(request.getParameter("order"), request.getParameter("ordervalue"));
+                } else {
+                    hmOrder = null;
+                }
+            } else {
+                hmOrder = null;
+            }
+            TipoproductoDao oTipoproductoDAO = new TipoproductoDao();
+            List<Tipoproducto> oTipoproductos = oTipoproductoDAO.getPage(rpp, page, alFilter, hmOrder);
             data = new Gson().toJson(oTipoproductos);
             data = "{\"list\":" + data + "}";
             return data;

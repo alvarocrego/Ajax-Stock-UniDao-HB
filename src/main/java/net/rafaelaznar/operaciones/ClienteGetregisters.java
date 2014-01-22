@@ -49,9 +49,10 @@ public class ClienteGetregisters implements GenericOperation {
                     }
                 }
             }       
-            ClienteDao oClienteDAO = new ClienteDao(Conexion.getConection());
+            ClienteDao oClienteDAO = new ClienteDao();
             int pages = oClienteDAO.getCount(alFilter);
             data = "{\"data\":\"" + Integer.toString(pages) + "\"}";
+            //data = "{\"data\":\"100\"}";
             return data;
         } catch (Exception e) {
             throw new ServletException("ClienteGetregistersJson: View Error: " + e.getMessage());

@@ -5,16 +5,15 @@
 package net.rafaelaznar.operaciones;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import net.rafaelaznar.bean.Compra;
 import net.rafaelaznar.dao.CompraDao;
-import net.rafaelaznar.helper.Conexion;
-import net.rafaelaznar.bean.CompraBean;
 import net.rafaelaznar.helper.FilterBean;
 
 /**
@@ -39,7 +38,6 @@ public class CompraGetpage implements GenericOperation {
             } else {
                 page = Integer.parseInt(request.getParameter("page"));
             }
-
             ArrayList<FilterBean> alFilter = new ArrayList<>();
             if (request.getParameter("filter") != null) {
                 if (request.getParameter("filteroperator") != null) {
@@ -65,9 +63,6 @@ public class CompraGetpage implements GenericOperation {
                     }
                 }
             }
-            if (alFilter.isEmpty()) {
-                alFilter = null;
-            }
             HashMap<String, String> hmOrder = new HashMap<>();
 
             if (request.getParameter("order") != null) {
@@ -79,13 +74,9 @@ public class CompraGetpage implements GenericOperation {
             } else {
                 hmOrder = null;
             }
-            CompraDao oCompraDAO = new CompraDao(Conexion.getConection());
-            List<CompraBean> oCompras = oCompraDAO.getPage(rpp, page, alFilter, hmOrder);
-
-            GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.setDateFormat("dd/MM/yyyy");
-            Gson gson = gsonBuilder.create();
-            data = gson.toJson(oCompras);
+            CompraDao oCompraDAO = new CompraDao();
+            List<Compra> oCompras = oCompraDAO.getPage(rpp, page, alFilter, hmOrder);
+            data = new Gson().toJson(oCompras);
             data = "{\"list\":" + data + "}";
             return data;
         } catch (Exception e) {

@@ -4,17 +4,11 @@
  */
 package net.rafaelaznar.dao;
 
-import net.rafaelaznar.bean.CompraBean;
-import net.rafaelaznar.helper.Conexion;
+import net.rafaelaznar.bean.Compra;
 
 /**
  *
  * @author rafa
  */
-public class CompraDao extends GenericDaoImplementation<CompraBean> {
-  
-    public CompraDao(Conexion.Tipo_conexion tipoConexion) throws Exception {
-        super(tipoConexion,"compra");
-    }
-    
+public class CompraDao extends GenericDaoImplementation<Compra> {
 }

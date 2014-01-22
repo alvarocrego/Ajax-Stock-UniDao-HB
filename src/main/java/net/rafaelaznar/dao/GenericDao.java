@@ -1,23 +1,28 @@
 package net.rafaelaznar.dao;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import net.rafaelaznar.helper.FilterBean;
 
+public interface GenericDao<TIPO_ENTIDAD extends Serializable> {
 
-public interface GenericDao<objeto> {
+    int create(TIPO_ENTIDAD entity) throws Exception;
 
-    public int getPages(int intRegsPerPag, ArrayList<FilterBean> hmFilter, HashMap<String, String> hmOrder) throws Exception;
+    void set(TIPO_ENTIDAD entity) throws Exception;
 
-    public int getCount(ArrayList<FilterBean> hmFilter) throws Exception;
+    void remove(TIPO_ENTIDAD entity) throws Exception;
 
-    public ArrayList<objeto> getPage(int intRegsPerPag, int intPage, ArrayList<FilterBean> hmFilter, HashMap<String, String> hmOrder) throws Exception;
+    TIPO_ENTIDAD get(int id) throws Exception;
 
-    public objeto get(objeto oBean) throws Exception;
+    List<TIPO_ENTIDAD> getAll() throws Exception;
 
-    public objeto set(objeto oBean) throws Exception;
+    int getCount(ArrayList<FilterBean> alFilter) throws Exception;
 
-    public void remove(objeto oBean) throws Exception;
+    int getPages(int pageSize, ArrayList<FilterBean> alFilter) throws Exception;
 
-    public ArrayList<String> getColumnsNames() throws Exception;
+    List<TIPO_ENTIDAD> getPage(int pageSize, int pageNumber, ArrayList<FilterBean> alFilter, HashMap<String, String> hmOrder) throws Exception;
+
+    ArrayList<String> getColumnsNames() throws Exception;
 }

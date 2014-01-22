@@ -11,8 +11,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import net.rafaelaznar.bean.UsuarioBean;
-import net.rafaelaznar.dao.UsuarioDao_Mysql;
+import net.rafaelaznar.bean.Usuario;
+import net.rafaelaznar.dao.UsuarioDao;
 import net.rafaelaznar.helper.Conexion;
 
 /**
@@ -65,7 +65,7 @@ public class ControlJsp extends HttpServlet {
             //procesamos la autenticación
             if (ob.equalsIgnoreCase("usuario")) {
                 if (op.equalsIgnoreCase("login02")) {
-                    UsuarioBean oUsuario = new UsuarioBean();
+                    Usuario oUsuario = new Usuario();
                     
                     String login = request.getParameter("login");
                     String pass = request.getParameter("password");
@@ -73,10 +73,10 @@ public class ControlJsp extends HttpServlet {
                     if (!login.equals("") && !pass.equals("")) {
                         oUsuario.setLogin(login);
                         oUsuario.setPassword(pass);
-                        UsuarioDao_Mysql oUsuarioDao = new UsuarioDao_Mysql(Conexion.getConection());
-                        oUsuario = oUsuarioDao.getFromLogin(oUsuario);
+                        UsuarioDao oUsuarioDao = new UsuarioDao();
+                        oUsuario = oUsuarioDao.getFromLogin(login,pass);
                         if (oUsuario.getId() != 0) {
-                            oUsuario = oUsuarioDao.get(oUsuario);
+                            oUsuario = oUsuarioDao.get(oUsuario.getId());
                             if (oUsuario.getLogin().equals(login) && oUsuario.getPassword().equals(pass)) {
                                 request.getSession().setAttribute("usuarioBean", oUsuario);
                             }

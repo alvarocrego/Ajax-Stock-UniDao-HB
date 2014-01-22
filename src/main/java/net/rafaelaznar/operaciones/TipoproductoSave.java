@@ -10,9 +10,11 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import net.rafaelaznar.bean.Tipoproducto;
+
 import net.rafaelaznar.helper.Conexion;
 import net.rafaelaznar.helper.EncodingUtil;
-import net.rafaelaznar.bean.TipoproductoBean;
+
 import net.rafaelaznar.dao.TipoproductoDao;
 
 /**
@@ -25,21 +27,21 @@ public class TipoproductoSave implements GenericOperation {
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         try {
-            TipoproductoDao oTipoproductoDAO = new TipoproductoDao(Conexion.getConection());
-            TipoproductoBean oTipoproducto = new TipoproductoBean();
+            TipoproductoDao oTipoproductoDAO = new TipoproductoDao();
+            Tipoproducto oTipoproducto = new Tipoproducto();
             Gson gson = new Gson();
             String jason = request.getParameter("json");
             jason = EncodingUtil.decodeURIComponent(jason);
             oTipoproducto = gson.fromJson(jason, oTipoproducto.getClass());
             Map<String, String> data = new HashMap<>();
-            if (oTipoproducto != null) {
-                oTipoproducto = oTipoproductoDAO.set(oTipoproducto);
-                data.put("status", "200");
-                data.put("message", Integer.toString(oTipoproducto.getId()));
+            if (oTipoproducto.getId() == 0 || oTipoproducto.getId()==null) {
+                oTipoproductoDAO.create(oTipoproducto);
             } else {
-                data.put("status", "error");
-                data.put("message", "error");
+                oTipoproductoDAO.set(oTipoproducto);
             }
+            data.put("status", "200");
+            data.put("message", Integer.toString(oTipoproducto.getId()));
+
             String resultado = gson.toJson(data);
             return resultado;
         } catch (Exception e) {

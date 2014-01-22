@@ -1,6 +1,6 @@
 <div class="hero-unit">
-    <h1>Bienvenidos a ajax stock uniDAO</h1>
-    <h3>Versión (v.01) de 16/1/2014</h3>
+    <h1>Bienvenidos a ajax stock uniDAO HB</h1>
+    <h3>Versión (v.01) de 22/1/2014</h3>
     <h5>Desarrollo de aplicaciones web. CPIFP Ausiàs March. Curso 2013-2014.</h5>    
 </div>
 <div class="row-fluid">
@@ -12,7 +12,7 @@
                     aplicaciones AJAX. Se trata de un proyecto que  
                     construimos durante la segunda evaluación de los módulos DES-DEC 
                     del ciclo formativo DAW. Está pensado para soportar mantenimientos 
-                    CRUDL (create remove update delete list).</p>
+                    CRUDL (create remove update delete list). Utiliza Hibernate.</p>
             </div>
             <div class="span6">
                 <h3>¿Para qué sirve?</h3>
@@ -41,11 +41,13 @@
             <li>Es un desarrollo didáctico</li>
             <li>Estructura de servidor MVC por niveles sin frameworks</li> 
             <li>Servidor escrito en Java (servlets y jsp)</li>  
+            <li>Desarrollado con Maven</li>  
             <li>Dos controladores, uno para servir jsp y otro para servir json</li>  
             <li>Cliente AJAX con Javascript y JQuery</li>              
             <li>Cliente desarrollado sobre Bootstrap responsivo</li>
             <li>Acceso a datos (base de datos MySQL) mediante clases de negocio y DAO</li>
-            <li>UNI-DAO tiene la característica especial de que tiene una clase DAO genérica mediante el uso de Reflection</li>
+            <li>HB indica que ha sido desarrollado utilizando el framework de persistencia Hibernate</li>
+            <li>UNI-DAO tiene la característica especial de que tiene una clase DAO genérica sobre Hibernate</li>            
             <li>Mantenimientos paginados</li>
             <li>Ajax Stock soporta Relaciones 1:M</li>
             <li>Ajax Stock soporta Relaciones M:M</li>

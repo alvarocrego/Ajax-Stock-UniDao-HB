@@ -4,8 +4,8 @@
     Created on : Dec 30, 2013, 1:18:26 PM
     Author     : rafa
 --%>
-<%@page import="net.rafaelaznar.bean.UsuarioBean"%>
-<% UsuarioBean oUsuario = (UsuarioBean) request.getSession().getAttribute("usuarioBean"); %>
+<%@page import="net.rafaelaznar.bean.Usuario"%>
+<% Usuario oUsuario = (Usuario) request.getSession().getAttribute("usuarioBean"); %>
 <% if (oUsuario==null){ %>
     <h1>Vd. no ha entrado en el sistema</h1>
     <h4>Ha habido un problema con su autenticación. Revise su login o su password.</h4>

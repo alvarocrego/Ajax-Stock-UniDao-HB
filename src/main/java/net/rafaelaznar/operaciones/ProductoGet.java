@@ -1,4 +1,4 @@
- /*
+/*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -12,12 +12,9 @@ package net.rafaelaznar.operaciones;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import net.rafaelaznar.bean.ProductoBean;
 import com.google.gson.Gson;
+import net.rafaelaznar.bean.Producto;
 import net.rafaelaznar.dao.ProductoDao;
-
-import net.rafaelaznar.helper.Conexion;
 
 public class ProductoGet implements GenericOperation {
 
@@ -28,10 +25,8 @@ public class ProductoGet implements GenericOperation {
             if (request.getParameter("id") == null) {
                 data = "{\"error\":\"id is mandatory\"}";
             } else {
-                ProductoDao oProductoDAO = new ProductoDao(Conexion.getConection());
-                ProductoBean oProducto = new ProductoBean();
-                oProducto.setId(Integer.parseInt(request.getParameter("id")));
-                oProductoDAO.get(oProducto);
+                ProductoDao oProductoDAO = new ProductoDao();                             
+                Producto oProducto=oProductoDAO.get(Integer.parseInt(request.getParameter("id")));
                 data = new Gson().toJson(oProducto);
             }
             return data;

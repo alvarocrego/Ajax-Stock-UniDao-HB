@@ -12,8 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import net.rafaelaznar.dao.ClienteDao;
 
-import net.rafaelaznar.helper.Conexion;
-
 /**
  *
  * @author rafa
@@ -24,10 +22,11 @@ public class ClienteGetcolumns implements GenericOperation {
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         ArrayList<String> alColumns = null;
         try {
-            ClienteDao oClienteDAO = new ClienteDao(Conexion.getConection());
-            alColumns = oClienteDAO.getColumnsNames();
+            ClienteDao oClienteDAO = new ClienteDao();
+            alColumns = (ArrayList<String>) oClienteDAO.getColumnsNames();
             String data = new Gson().toJson(alColumns);
-            data = "{\"data\":" + data + "}";
+            //String data = "{\"data\":" + "[\"id\",\"nombre\",\"ape1\",\"ape2\",\"email\"]" + "}";
+             data = "{\"data\":" + data + "}";
             return data;
         } catch (Exception e) {
             throw new ServletException("ClienteGetcolumnsJson: View Error: " + e.getMessage());

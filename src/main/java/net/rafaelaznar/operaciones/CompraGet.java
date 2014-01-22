@@ -12,12 +12,9 @@ package net.rafaelaznar.operaciones;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import net.rafaelaznar.bean.CompraBean;
-import net.rafaelaznar.dao.CompraDao;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import net.rafaelaznar.helper.Conexion;
+import net.rafaelaznar.bean.Compra;
+import net.rafaelaznar.dao.CompraDao;
 
 public class CompraGet implements GenericOperation {
 
@@ -28,15 +25,9 @@ public class CompraGet implements GenericOperation {
             if (request.getParameter("id") == null) {
                 data = "{\"error\":\"id is mandatory\"}";
             } else {
-                CompraDao oCompraDAO = new CompraDao(Conexion.getConection());
-                CompraBean oCompra = new CompraBean();
-                oCompra.setId(Integer.parseInt(request.getParameter("id")));
-                oCompraDAO.get(oCompra);                                
-                GsonBuilder gsonBuilder = new GsonBuilder();
-                gsonBuilder.setDateFormat("dd/MM/yyyy");
-                Gson gson = gsonBuilder.create();
-                data = gson.toJson(oCompra);                
-                //data = new Gson().toJson(oCompra);
+                CompraDao oCompraDAO = new CompraDao();                             
+                Compra oCompra=oCompraDAO.get(Integer.parseInt(request.getParameter("id")));
+                data = new Gson().toJson(oCompra);
             }
             return data;
         } catch (Exception e) {

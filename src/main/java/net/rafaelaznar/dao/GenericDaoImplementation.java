@@ -1,203 +1,348 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
+ * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
 package net.rafaelaznar.dao;
 
-import java.lang.reflect.Method;
+import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Locale;
-import net.rafaelaznar.data.MysqlData;
-import net.rafaelaznar.helper.Conexion;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.rafaelaznar.helper.FilterBean;
-import java.text.SimpleDateFormat;
+import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
+import org.hibernate.SQLQuery;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 
 /**
  *
  * @author rafa
- * @param <TIPO_OBJETO>
- *
  */
-public class GenericDaoImplementation<TIPO_OBJETO> implements GenericDao<TIPO_OBJETO> {
+public class GenericDaoImplementation<TYPE extends Serializable> implements GenericDao<TYPE> {
 
-    private final MysqlData oMysql;
-    private final Conexion.Tipo_conexion enumTipoConexion;
-    private final String strTabla;
-
-    public GenericDaoImplementation(Conexion.Tipo_conexion tipoConexion, String tabla) throws Exception {
-        oMysql = new MysqlData();
-        enumTipoConexion = tipoConexion;
-        strTabla = tabla;
-    }
+    private Session sesion;
+    private Transaction tx;
 
     @Override
-    public int getPages(int intRegsPerPag, ArrayList<FilterBean> hmFilter, HashMap<String, String> hmOrder) throws Exception {
-        int pages;
+    public int create(TYPE oBean) throws Exception {
+        int id = 0;
         try {
-            oMysql.conexion(enumTipoConexion);
-            pages = oMysql.getPages(strTabla, intRegsPerPag, hmFilter, hmOrder);
-            oMysql.desconexion();
-            return pages;
-        } catch (Exception e) {
-            throw new Exception("GenericDao.getPages: Error: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public int getCount(ArrayList<FilterBean> hmFilter) throws Exception {
-        int pages;
-        try {
-            oMysql.conexion(enumTipoConexion);
-            pages = oMysql.getCount(strTabla, hmFilter);
-            oMysql.desconexion();
-            return pages;
-        } catch (Exception e) {
-            throw new Exception("GenericDao.getCount: Error: " + e.getMessage());
-        }
-
-    }
-
-    @Override
-    public ArrayList<TIPO_OBJETO> getPage(int intRegsPerPag, int intPage, ArrayList<FilterBean> hmFilter, HashMap<String, String> hmOrder) throws Exception {
-        Class<TIPO_OBJETO> tipo = (Class<TIPO_OBJETO>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        Method metodo_setId = tipo.getMethod("setId", Integer.class);
-        ArrayList<Integer> arrId;
-        ArrayList<TIPO_OBJETO> arrCliente = new ArrayList<>();
-        try {
-            oMysql.conexion(enumTipoConexion);
-            arrId = oMysql.getPage(strTabla, intRegsPerPag, intPage, hmFilter, hmOrder);
-            Iterator<Integer> iterador = arrId.listIterator();
-            while (iterador.hasNext()) {
-                Object oBean = Class.forName(tipo.getName()).newInstance();
-                metodo_setId.invoke(oBean, iterador.next());
-                arrCliente.add(this.get((TIPO_OBJETO) oBean));
-            }
-            oMysql.desconexion();
-            return arrCliente;
-        } catch (Exception e) {
-            throw new Exception("GenericDao.getPage: Error: " + e.getMessage());
-        }
-
-    }
-
-    @Override
-    public TIPO_OBJETO get(TIPO_OBJETO oBean) throws Exception {
-        Class<TIPO_OBJETO> tipo = (Class<TIPO_OBJETO>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        Method metodo_getId = tipo.getMethod("getId");
-        Method metodo_setId = tipo.getMethod("setId", Integer.class);
-        if ((Integer) metodo_getId.invoke(oBean) > 0) {
-            try {
-                oMysql.conexion(enumTipoConexion);
-                if (!oMysql.existsOne(strTabla, (Integer) metodo_getId.invoke(oBean))) {
-                    metodo_setId.invoke(oBean, 0);
-                } else {
-                    for (Method method : tipo.getMethods()) {
-                        if (!method.getName().substring(3).equalsIgnoreCase("id")) {
-                            if (method.getName().substring(0, 3).equalsIgnoreCase("set")) {
-                                final Class<?> strTipoParamMetodoSet = method.getParameterTypes()[0];
-                                String strValor = oMysql.getOne(strTabla, method.getName().substring(3).toLowerCase(Locale.ENGLISH), (Integer) metodo_getId.invoke(oBean));
-                                if (strValor != null) {
-                                    switch (strTipoParamMetodoSet.getName()) {
-                                        case "java.lang.Double":
-                                            method.invoke(oBean, Double.parseDouble(strValor));
-                                            break;
-                                        case "java.lang.Integer":
-                                            method.invoke(oBean, Integer.parseInt(strValor));
-                                            break;
-                                        case "java.util.Date":
-                                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-                                            method.invoke(oBean, format.parse(strValor));
-                                            break;
-                                        default:
-                                            method.invoke(oBean, strValor);
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                throw new Exception("GenericDao.get: Error: " + e.getMessage());
-            } finally {
-                oMysql.desconexion();
-            }
-        } else {
-            metodo_setId.invoke(oBean, 0);
-        }
-        return oBean;
-
-    }
-
-    @Override
-    public TIPO_OBJETO set(TIPO_OBJETO oBean) throws Exception {
-        Class<TIPO_OBJETO> tipo = (Class<TIPO_OBJETO>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        Method metodo_getId = tipo.getMethod("getId");
-        Method metodo_setId = tipo.getMethod("setId", Integer.class);
-        try {
-            oMysql.conexion(enumTipoConexion);
-            oMysql.initTrans();
-            if ((Integer) metodo_getId.invoke(oBean) == 0) {
-                metodo_setId.invoke(oBean, oMysql.insertOne(strTabla));
-            }
-            for (Method method : tipo.getMethods()) {
-                if (!method.getName().substring(3).equalsIgnoreCase("id")) {
-                    if (method.getName().substring(0, 3).equalsIgnoreCase("get")) {
-                        if (!method.getName().equals("getClass")) {
-                            final Class<?> strTipoDevueltoMetodoGet = method.getReturnType();
-                            String value = (String) method.invoke(oBean).toString();
-                            if (strTipoDevueltoMetodoGet.getName().equals("java.util.Date")) {
-                                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-                                value = format.format(method.invoke(oBean));
-                            }                                 
-                            String strCampo=method.getName().substring(3).toLowerCase(Locale.ENGLISH);
-                            oMysql.updateOne((Integer) metodo_getId.invoke(oBean), strTabla, strCampo, value);
-                        }
-                    }
-                }
-            }
-            oMysql.commitTrans();
-        } catch (Exception e) {
-            oMysql.rollbackTrans();
-            throw new Exception("GenericDao.set: Error: " + e.getMessage());
+            sesion = HibernateUtil.getSessionFactory().openSession();
+            tx = (Transaction) sesion.beginTransaction();
+            id = (int) sesion.save(oBean);
+            tx.commit();
+        } catch (HibernateException e) {
+            tx.rollback();
+            //Logger.getLogger(GenericDaoImplementation.class.getName()).log(Level.SEVERE, null, e);
+            throw new HibernateException("GenericDaoImplementation.create: Error: ", e);
         } finally {
-            oMysql.desconexion();
+            sesion.close();
+        }
+        return id;
+    }
+
+    @Override
+    public void set(TYPE oBean) throws Exception {
+        try {
+            sesion = HibernateUtil.getSessionFactory().openSession();
+            tx = (Transaction) sesion.beginTransaction();
+            sesion.update(oBean);
+            tx.commit();
+        } catch (HibernateException e) {
+            tx.rollback();
+            //Logger.getLogger(GenericDaoImplementation.class.getName()).log(Level.SEVERE, null, e);
+            throw new HibernateException("GenericDaoImplementation.set: Error: ", e);
+        } finally {
+            sesion.close();
+        }
+    }
+
+    @Override
+    public void remove(TYPE oBean) throws Exception {
+        try {
+            sesion = HibernateUtil.getSessionFactory().openSession();
+            tx = (Transaction) sesion.beginTransaction();
+            sesion.delete(oBean);
+            tx.commit();
+        } catch (HibernateException e) {
+            tx.rollback();
+            //Logger.getLogger(GenericDaoImplementation.class.getName()).log(Level.SEVERE, null, e);
+            throw new HibernateException("GenericDaoImplementation.remove: Error: ", e);
+        } finally {
+            sesion.close();
+        }
+    }
+
+    @Override
+    public TYPE get(int id) throws Exception { //public TYPE read(TYPE entity) {
+        TYPE oBean;
+        Class<TYPE> tipo = (Class<TYPE>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        try {
+            sesion = HibernateUtil.getSessionFactory().openSession();
+            oBean = (TYPE) sesion.get(tipo, id);
+        } catch (HibernateException e) {
+            throw new HibernateException("GenericDaoImplementation.get: Error: ", e);
+        } finally {
+            sesion.close();
         }
         return oBean;
     }
 
     @Override
-    public void remove(TIPO_OBJETO oBean) throws Exception {
-        Class<TIPO_OBJETO> tipo = (Class<TIPO_OBJETO>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        Method metodo_getId = tipo.getMethod("getId");
+    public List<TYPE> getAll() throws Exception {
+        List<TYPE> loBean;
+        Class<TYPE> tipo = (Class<TYPE>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        sesion = HibernateUtil.getSessionFactory().openSession();
         try {
-            oMysql.conexion(enumTipoConexion);
-            oMysql.removeOne((Integer) metodo_getId.invoke(oBean), strTabla);
-            oMysql.desconexion();
-        } catch (Exception e) {
-            throw new Exception("GenericDao.remove: Error: " + e.getMessage());
+            Criteria criteria = sesion.createCriteria(tipo);
+            loBean = (List<TYPE>) criteria.list();
+        } catch (HibernateException e) {
+            throw new HibernateException("GenericDaoImplementation.getAll: Error: ", e);
         } finally {
-            oMysql.desconexion();
+            sesion.close();
         }
+        return loBean;
+    }
+
+    @Override
+    public int getCount(ArrayList<FilterBean> alFilter) throws Exception {
+        int cantidad;
+        Class<TYPE> tipo = (Class<TYPE>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        try {
+            sesion = HibernateUtil.getSessionFactory().openSession();
+            Criteria oCriteria = sesion.createCriteria(tipo);
+
+            if (alFilter != null) {
+                Iterator iterator = alFilter.iterator();
+                while (iterator.hasNext()) {
+                    FilterBean oFilterBean = (FilterBean) iterator.next();
+                    switch (oFilterBean.getFilterOperator()) {
+                        case "like":
+                            oCriteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " LIKE '%" + oFilterBean.getFilterValue() + "%'"));
+                            //criteria.add(Restrictions.like(oFilterBean.getFilter(), "%" + oFilterBean.getFilterValue() + "%"));
+                            break;
+                        case "notlike":
+                            oCriteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " NOT LIKE '%" + oFilterBean.getFilterValue() + "%'"));
+                            //criteria.add(Restrictions.not(Restrictions.like(oFilterBean.getFilter(), "%" + oFilterBean.getFilterValue() + "%")));
+                            break;
+                        case "equals":
+                            oCriteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " = '" + oFilterBean.getFilterValue() + "'"));
+                            //criteria.add(Restrictions.eq(oFilterBean.getFilter(), "%" + oFilterBean.getFilterValue() + "%"));
+                            break;
+                        case "notequalto":
+                            oCriteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " <> '" + oFilterBean.getFilterValue() + "'"));
+                            //criteria.add(Restrictions.not(Restrictions.eq(oFilterBean.getFilter(), oFilterBean.getFilterValue())));
+                            break;
+                        case "less":
+                            oCriteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " < " + oFilterBean.getFilterValue()));
+                            //criteria.add(Restrictions.lt(oFilterBean.getFilter(), oFilterBean.getFilterValue()));
+                            break;
+                        case "lessorequal":
+                            oCriteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " <= " + oFilterBean.getFilterValue()));
+                            //criteria.add(Restrictions.le(oFilterBean.getFilter(), oFilterBean.getFilterValue()));
+                            break;
+                        case "greater":
+                            oCriteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " > " + oFilterBean.getFilterValue()));
+                            //criteria.add(Restrictions.gt(oFilterBean.getFilter(), oFilterBean.getFilterValue()));
+                            break;
+                        case "greaterorequal":
+                            oCriteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " >= " + oFilterBean.getFilterValue()));
+                            //criteria.add(Restrictions.ge(oFilterBean.getFilter(), oFilterBean.getFilterValue()));
+                            break;
+                    }
+
+                }
+
+            }
+
+            oCriteria.setProjection(Projections.rowCount());
+            cantidad = (int) (long) oCriteria.list().get(0);
+        } catch (HibernateException e) {
+            throw new HibernateException("GenericDaoImplementation.getCount: Error: ", e);
+        } finally {
+            sesion.close();
+        }
+        return cantidad;
+    }
+
+    @Override
+    public int getPages(int intRegsPerPag, ArrayList<FilterBean> alFilter) throws Exception {
+        int cantidad, pages;
+        Class<TYPE> tipo = (Class<TYPE>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        try {
+            sesion = HibernateUtil.getSessionFactory().openSession();
+            Criteria oCriteria = sesion.createCriteria(tipo);
+
+            if (alFilter != null) {
+                Iterator iterator = alFilter.iterator();
+                while (iterator.hasNext()) {
+                    FilterBean oFilterBean = (FilterBean) iterator.next();
+                    switch (oFilterBean.getFilterOperator()) {
+                        case "like":
+                            oCriteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " LIKE '%" + oFilterBean.getFilterValue() + "%'"));
+                            //criteria.add(Restrictions.like(oFilterBean.getFilter(), "%" + oFilterBean.getFilterValue() + "%"));
+                            break;
+                        case "notlike":
+                            oCriteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " NOT LIKE '%" + oFilterBean.getFilterValue() + "%'"));
+                            //criteria.add(Restrictions.not(Restrictions.like(oFilterBean.getFilter(), "%" + oFilterBean.getFilterValue() + "%")));
+                            break;
+                        case "equals":
+                            oCriteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " = '" + oFilterBean.getFilterValue() + "'"));
+                            //criteria.add(Restrictions.eq(oFilterBean.getFilter(), "%" + oFilterBean.getFilterValue() + "%"));
+                            break;
+                        case "notequalto":
+                            oCriteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " <> '" + oFilterBean.getFilterValue() + "'"));
+                            //criteria.add(Restrictions.not(Restrictions.eq(oFilterBean.getFilter(), oFilterBean.getFilterValue())));
+                            break;
+                        case "less":
+                            oCriteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " < " + oFilterBean.getFilterValue()));
+                            //criteria.add(Restrictions.lt(oFilterBean.getFilter(), oFilterBean.getFilterValue()));
+                            break;
+                        case "lessorequal":
+                            oCriteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " <= " + oFilterBean.getFilterValue()));
+                            //criteria.add(Restrictions.le(oFilterBean.getFilter(), oFilterBean.getFilterValue()));
+                            break;
+                        case "greater":
+                            oCriteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " > " + oFilterBean.getFilterValue()));
+                            //criteria.add(Restrictions.gt(oFilterBean.getFilter(), oFilterBean.getFilterValue()));
+                            break;
+                        case "greaterorequal":
+                            oCriteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " >= " + oFilterBean.getFilterValue()));
+                            //criteria.add(Restrictions.ge(oFilterBean.getFilter(), oFilterBean.getFilterValue()));
+                            break;
+                    }
+
+                }
+
+            }
+
+            cantidad = (int) (long) oCriteria.setProjection(Projections.rowCount()).uniqueResult();
+            pages = (int) Math.ceil(cantidad / intRegsPerPag);
+        } catch (HibernateException e) {
+            throw new HibernateException("GenericDaoImplementation.getPages: Error: ", e);
+        } finally {
+            sesion.close();
+        }
+
+        return pages;
+    }
+
+    @Override
+    public List<TYPE> getPage(int pageSize, int pageNumber, ArrayList<FilterBean> alFilter, HashMap<String, String> hmOrder) throws Exception {
+        List<TYPE> loBean;
+        Class<TYPE> tipo = (Class<TYPE>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        sesion = HibernateUtil.getSessionFactory().openSession();
+        try {
+            Criteria criteria = sesion.createCriteria(tipo);
+
+            if (alFilter != null) {
+                Iterator iterator = alFilter.iterator();
+                while (iterator.hasNext()) {
+                    FilterBean oFilterBean = (FilterBean) iterator.next();
+                    switch (oFilterBean.getFilterOperator()) {
+                        case "like":
+                            criteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " LIKE '%" + oFilterBean.getFilterValue() + "%'"));
+                            //criteria.add(Restrictions.like(oFilterBean.getFilter(), "%" + oFilterBean.getFilterValue() + "%"));
+                            break;
+                        case "notlike":
+                            criteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " NOT LIKE '%" + oFilterBean.getFilterValue() + "%'"));
+                            //criteria.add(Restrictions.not(Restrictions.like(oFilterBean.getFilter(), "%" + oFilterBean.getFilterValue() + "%")));
+                            break;
+                        case "equals":
+                            criteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " = '" + oFilterBean.getFilterValue() + "'"));
+                            //criteria.add(Restrictions.eq(oFilterBean.getFilter(), "%" + oFilterBean.getFilterValue() + "%"));
+                            break;
+                        case "notequalto":
+                            criteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " <> '" + oFilterBean.getFilterValue() + "'"));
+                            //criteria.add(Restrictions.not(Restrictions.eq(oFilterBean.getFilter(), oFilterBean.getFilterValue())));
+                            break;
+                        case "less":
+                            criteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " < " + oFilterBean.getFilterValue()));
+                            //criteria.add(Restrictions.lt(oFilterBean.getFilter(), oFilterBean.getFilterValue()));
+                            break;
+                        case "lessorequal":
+                            criteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " <= " + oFilterBean.getFilterValue()));
+                            //criteria.add(Restrictions.le(oFilterBean.getFilter(), oFilterBean.getFilterValue()));
+                            break;
+                        case "greater":
+                            criteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " > " + oFilterBean.getFilterValue()));
+                            //criteria.add(Restrictions.gt(oFilterBean.getFilter(), oFilterBean.getFilterValue()));
+                            break;
+                        case "greaterorequal":
+                            criteria.add(Restrictions.sqlRestriction(oFilterBean.getFilter() + " >= " + oFilterBean.getFilterValue()));
+                            //criteria.add(Restrictions.ge(oFilterBean.getFilter(), oFilterBean.getFilterValue()));
+                            break;
+                    }
+                }
+            }
+            if (hmOrder != null) {
+                for (Map.Entry oPar : hmOrder.entrySet()) {
+                    if ("asc".equalsIgnoreCase((String) oPar.getValue())) {
+                        criteria.addOrder(Order.asc((String) oPar.getKey())); // (Restrictions.sqlRestriction(
+                    } else {
+                        criteria.addOrder(Order.desc((String) oPar.getKey()));
+                    }
+                }
+            }
+            criteria.setFirstResult((pageNumber - 1) * pageSize);
+            criteria.setMaxResults(pageSize);
+            loBean = (List<TYPE>) criteria.list();
+        } catch (HibernateException e) {
+            throw new HibernateException("GenericDaoImplementation.getPage: Error: ", e);
+        } finally {
+            sesion.close();
+        }
+        return loBean;
     }
 
     @Override
     public ArrayList<String> getColumnsNames() throws Exception {
-        ArrayList<String> alColumns = null;
-        try {
-            oMysql.conexion(enumTipoConexion);
-            alColumns = oMysql.getColumnsName(strTabla, Conexion.getDatabaseName());
-            oMysql.desconexion();
+        ArrayList<String> vector = new ArrayList<>();
+        Class<TYPE> tipo = (Class<TYPE>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+//        //---------------------------------------------------------------------
+//        //Dejo comentado el esquema para obtener los nombres de los campos de la tabla via introspección en el mapeo de hibernate
+//        sesion = HibernateUtil.getSessionFactory().openSession();
+//        Configuration oConfiguration = HibernateUtil.getConfiguration();
+//        PersistentClass oPersistentClass = oConfiguration.getClassMapping(tipo.getName());
+//        for (Method method : tipo.getMethods()) {
+//            Property oProperty = oPersistentClass.getProperty(method.getName());
+//            Iterator<Column> oIterator = oProperty.getColumnIterator();
+//            Column oColumn = oIterator.next();
+//            vector.add(oColumn.getName());
+//        }
 
-        } catch (Exception e) {
-            throw new Exception("GenericDao.remove: Error: " + e.getMessage());
+        //---------------------------------------------------------------------
+        //obtener los nombre de los campos via consulta SQL
+        //problema: error: cannot open connection
+        try {
+            sesion = HibernateUtil.getSessionFactory().openSession();
+            SQLQuery query = sesion.createSQLQuery("DESCRIBE " + tipo.getSimpleName());
+            List result = query.list();
+            Iterator<Object[]> oIterador = result.listIterator();
+            while (oIterador.hasNext()) {
+                Object[] aCampos = oIterador.next();
+                vector.add((String) aCampos[0]);
+            }
+        } catch (HibernateException e) {
+            throw new HibernateException("GenericDaoImplementation.getColumnsNames: Error: ", e);
         } finally {
-            oMysql.desconexion();
+            try {
+                sesion.close();
+            } catch (Exception e) {
+                throw new Exception("GenericDaoImplementation.getColumnsNames: Error: ", e);
+            }
         }
-        return alColumns;
+        return vector;
+
     }
+
 }

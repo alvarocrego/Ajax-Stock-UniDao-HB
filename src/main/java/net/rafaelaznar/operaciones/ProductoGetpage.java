@@ -12,8 +12,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.rafaelaznar.helper.Conexion;
-import net.rafaelaznar.bean.ProductoBean;
+import net.rafaelaznar.bean.Producto;
 import net.rafaelaznar.dao.ProductoDao;
 import net.rafaelaznar.helper.FilterBean;
 
@@ -75,8 +74,8 @@ public class ProductoGetpage implements GenericOperation {
             } else {
                 hmOrder = null;
             }
-            ProductoDao oProductoDAO = new ProductoDao(Conexion.getConection());
-            List<ProductoBean> oProductos = oProductoDAO.getPage(rpp, page, alFilter, hmOrder);
+            ProductoDao oProductoDAO = new ProductoDao();
+            List<Producto> oProductos = oProductoDAO.getPage(rpp, page, alFilter, hmOrder);
             data = new Gson().toJson(oProductos);
             data = "{\"list\":" + data + "}";
             return data;

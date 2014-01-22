@@ -48,10 +48,11 @@ public class ProductoGetregisters implements GenericOperation {
                         alFilter.add(oFilterBean);
                     }
                 }
-            }         
-            ProductoDao oProductoDAO = new ProductoDao(Conexion.getConection());
+            }       
+            ProductoDao oProductoDAO = new ProductoDao();
             int pages = oProductoDAO.getCount(alFilter);
             data = "{\"data\":\"" + Integer.toString(pages) + "\"}";
+            //data = "{\"data\":\"100\"}";
             return data;
         } catch (Exception e) {
             throw new ServletException("ProductoGetregistersJson: View Error: " + e.getMessage());

@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import net.rafaelaznar.dao.CompraDao;
+
 import net.rafaelaznar.helper.Conexion;
 import net.rafaelaznar.helper.FilterBean;
 
@@ -47,10 +48,11 @@ public class CompraGetregisters implements GenericOperation {
                         alFilter.add(oFilterBean);
                     }
                 }
-            }
-            CompraDao oCompraDAO = new CompraDao(Conexion.getConection());
+            }       
+            CompraDao oCompraDAO = new CompraDao();
             int pages = oCompraDAO.getCount(alFilter);
             data = "{\"data\":\"" + Integer.toString(pages) + "\"}";
+            //data = "{\"data\":\"100\"}";
             return data;
         } catch (Exception e) {
             throw new ServletException("CompraGetregistersJson: View Error: " + e.getMessage());

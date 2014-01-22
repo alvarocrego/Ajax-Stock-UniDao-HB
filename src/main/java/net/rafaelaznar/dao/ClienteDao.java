@@ -4,17 +4,24 @@
  */
 package net.rafaelaznar.dao;
 
-import net.rafaelaznar.bean.ClienteBean;
-import net.rafaelaznar.helper.Conexion;
+import java.util.ArrayList;
+import java.util.List;
+import net.rafaelaznar.bean.Cliente;
 
 /**
  *
  * @author rafa
  */
-public class ClienteDao extends GenericDaoImplementation<ClienteBean> {
-  
-    public ClienteDao(Conexion.Tipo_conexion tipoConexion) throws Exception {
-        super(tipoConexion,"cliente");
-    }
-    
+public class ClienteDao extends GenericDaoImplementation<Cliente> {
+
+//    public ArrayList<String> getColumnsNames() {
+//        ArrayList<String> vector = new ArrayList<>();
+//        vector.add("id");
+//        vector.add("nombre");
+//        vector.add("ape1");
+//        vector.add("ape2");
+//        vector.add("email");
+//        return vector;
+//    }
+
 }
