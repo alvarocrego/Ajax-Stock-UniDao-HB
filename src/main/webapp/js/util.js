@@ -184,7 +184,7 @@ function enviarDatosUpdateForm(view,prefijo_div) {
     cabecera = "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>" + "<h3 id=\"myModalLabel\">Respuesta del servidor</h3>";
     pie = "<button class=\"btn btn-primary\" data-dismiss=\"modal\" aria-hidden=\"true\">Cerrar</button>";
     resultado = view.getObject().saveOne(jsonfile);
-    if (resultado["status"] = "200") {
+    if (resultado["status"] == "200") {
         mensaje = 'valores actualizados correctamente para el registro con id=' + resultado["message"];
         loadForm('#modal02', cabecera, "Código: " + resultado["status"] + "<br />" + mensaje + "<br />" + view.getObjectTable(resultado["message"]), pie, true);
     } else {

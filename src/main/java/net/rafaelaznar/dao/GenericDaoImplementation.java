@@ -226,7 +226,7 @@ public class GenericDaoImplementation<TYPE extends Serializable> implements Gene
             }
 
             cantidad = (int) (long) oCriteria.setProjection(Projections.rowCount()).uniqueResult();
-            pages = (int) Math.ceil(cantidad / intRegsPerPag);
+            pages = (int) Math.ceil((double) cantidad / (double) intRegsPerPag);
         } catch (HibernateException e) {
             throw new HibernateException("GenericDaoImplementation.getPages: Error: ", e);
         } finally {
@@ -287,9 +287,15 @@ public class GenericDaoImplementation<TYPE extends Serializable> implements Gene
             if (hmOrder != null) {
                 for (Map.Entry oPar : hmOrder.entrySet()) {
                     if ("asc".equalsIgnoreCase((String) oPar.getValue())) {
-                        criteria.addOrder(Order.asc((String) oPar.getKey())); // (Restrictions.sqlRestriction(
+                        String key = (String) oPar.getKey();
+                        String[] key2 = key.split("_");
+                        key = key2[0] + Character.toUpperCase(key2[1].charAt(0))+key2[1].substring(1);
+                        criteria.addOrder(Order.asc(key)); // (Restrictions.sqlRestriction(
                     } else {
-                        criteria.addOrder(Order.desc((String) oPar.getKey()));
+                        String key = (String) oPar.getKey();
+                        String[] key2 = key.split("_");
+                        key = key2[0] + Character.toUpperCase(key2[1].charAt(0))+key2[1].substring(1);
+                        criteria.addOrder(Order.desc(key));
                     }
                 }
             }
