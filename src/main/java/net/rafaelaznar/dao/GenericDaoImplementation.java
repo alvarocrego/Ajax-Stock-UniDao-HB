@@ -288,13 +288,17 @@ public class GenericDaoImplementation<TYPE extends Serializable> implements Gene
                 for (Map.Entry oPar : hmOrder.entrySet()) {
                     if ("asc".equalsIgnoreCase((String) oPar.getValue())) {
                         String key = (String) oPar.getKey();
-                        String[] key2 = key.split("_");
-                        key = key2[0] + Character.toUpperCase(key2[1].charAt(0))+key2[1].substring(1);
+                        if (key.contains("_")) {
+                            String[] key2 = key.split("_");
+                            key = key2[0] + Character.toUpperCase(key2[1].charAt(0)) + key2[1].substring(1);
+                        }
                         criteria.addOrder(Order.asc(key)); // (Restrictions.sqlRestriction(
                     } else {
                         String key = (String) oPar.getKey();
-                        String[] key2 = key.split("_");
-                        key = key2[0] + Character.toUpperCase(key2[1].charAt(0))+key2[1].substring(1);
+                        if (key.contains("_")) {
+                            String[] key2 = key.split("_");
+                            key = key2[0] + Character.toUpperCase(key2[1].charAt(0)) + key2[1].substring(1);
+                        }
                         criteria.addOrder(Order.desc(key));
                     }
                 }
